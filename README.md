@@ -7,4 +7,5 @@ Install python in your machine
 5. . .venv/bin/activate
 6. pip install django
 7. pip install djangorestframework
-8. python manage.py runserver
+8. Add the openai key in the file
+9. python manage.py runserver
