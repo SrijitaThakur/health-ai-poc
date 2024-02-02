@@ -1,9 +1,10 @@
 # health-ai-poc
-mkdir sutter-ai
-cd sutter-ai
-python3 --version
-python3 -m venv .venv
-. .venv/bin/activate
-pip install django
-pip install djangorestframework
-python manage.py runserver
+Install python in your machine
+1. mkdir sutter-ai
+2. cd sutter-ai
+3. python3 --version
+4. python3 -m venv .venv
+5. . .venv/bin/activate
+6. pip install django
+7. pip install djangorestframework
+8. python manage.py runserver
