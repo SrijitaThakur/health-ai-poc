@@ -88,7 +88,7 @@ DATABASES = {
         'NAME': 'healthmonitor',
         'CLIENT': {
             # Replace with your MongoDB server address
-            'host': 'mongodb+srv://m001-student:ITSiem0RLsPY6zA4@sandbox.3wtgukv.mongodb.net/?retryWrites=true&w=majority',
+            'host': '',
             'port': 27017,               # Replace with your MongoDB port if different
             'authSource': 'admin'
         },
