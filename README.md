@@ -8,4 +8,5 @@ Install python in your machine
 6. pip install django
 7. pip install djangorestframework
 8. Add the openai key in the file
-9. python manage.py runserver
+9. Install all other required packages like openai
+10. python manage.py runserver
