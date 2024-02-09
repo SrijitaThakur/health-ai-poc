@@ -1,3 +1,4 @@
+import os
 import json
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -6,7 +7,13 @@ from .models import User
 from .serializers import UserSerializer
 from openai import OpenAI
 
-client = OpenAI(api_key='')
+api_key = os.environ.get('OPENAI_API_KEY')
+
+# Check if the API key is available
+if not api_key:
+    raise Exception("OpenAI API key not found in environment variables.")
+
+client = OpenAI(api_key=api_key)
 
 # Set your OpenAI API key
 

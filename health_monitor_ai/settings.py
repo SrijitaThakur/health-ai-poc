@@ -11,6 +11,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+
+# Retrieve the MongoDB host from the environment
+mongo_host = os.environ.get('MONGO_HOST')
+
+# Check if the MongoDB host is available
+if not mongo_host:
+    raise Exception("MongoDB host not found in environment variables.")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -88,7 +96,7 @@ DATABASES = {
         'NAME': 'healthmonitor',
         'CLIENT': {
             # Replace with your MongoDB server address
-            'host': '',
+            'host': mongo_host,
             'port': 27017,               # Replace with your MongoDB port if different
             'authSource': 'admin'
         },
