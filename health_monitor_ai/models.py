@@ -3,21 +3,23 @@ from djongo import models
 
 class HeartRates(models.Model):
     _id = models.ObjectIdField(primary_key=True)
-    date = models.DateField()
+    startDate = models.DateField()
+    endDate = models.DateField()
     value = models.IntegerField()
 
 
 class Sleep(models.Model):
     _id = models.ObjectIdField(primary_key=True)
-    from_date = models.DateField()
-    to_date = models.DateField()
+    startDate = models.DateField()
+    endDate = models.DateField()
     # Example values: asleep, awake, deep sleep, etc.
     sleep_value = models.CharField(max_length=20)
 
 
 class Steps(models.Model):
     _id = models.ObjectIdField(primary_key=True)
-    date = models.DateField()
+    startDate = models.DateField()
+    endDate = models.DateField()
     steps = models.IntegerField()
 
 
