@@ -111,38 +111,51 @@ def recommendation(request):
         sex = user.sex
         height = user.height
         weight = user.weight
+        bloodSugar = user.bloodSugar
+        dietaryFatTotal = user.dietaryFatTotal
+        dietarySugar = user.dietarySugar
+        dietaryWater = user.dietaryWater
+        dietaryProtein = user.dietaryProtein
+        dietaryFiber = user.dietaryFiber
+        bloodPressureSystolic = user.bloodPressureSystolic
+        bloodPressureDiastolic = user.bloodPressureDiastolic
 
         # Extract heart rate data for the user
-        # Extract heart rate data for the user
-        heart_rate_data = [(hr['date'], hr['value']) for hr in user.heartRates]
+        heart_rate_data = [(hr.startDate, hr.value) for hr in user.heartRates]
 
         # Extract sleep data for the user
-        sleep_data = [(sleep['from_date'], sleep['to_date'],
-                       sleep['sleep_value']) for sleep in user.sleep]
+        sleep_data = [(sleep.startDate, sleep.endDate, sleep.value)
+                      for sleep in user.sleep]
 
         # Extract steps data for the user
-        steps_data = [(steps['date'], steps['steps']) for steps in user.steps]
+        steps_data = [(steps.startDate, steps.value) for steps in user.steps]
 
         # Include prompt for generating diet plan
         context = "Generate a custom diet and exercise plan based on the provided information\n"
 
         # Format data for chat-GPT4 model
-        context += f"Age: {age},Sex: {sex},Height: {height},Weight: {weight},Blood sugar: 150,Total Cholesterol: 200, sgpt: 80, bilirubin: 2,haemoglobin: 9, "
+        context += f"Age: {age}, Sex: {sex}, Height: {height}, Weight: {weight}, Blood sugar: {bloodSugar}, "
+        context += f"Dietary Fat Total: {dietaryFatTotal}, Dietary Sugar: {dietarySugar}, "
+        context += f"Dietary Water: {dietaryWater}, Dietary Protein: {dietaryProtein}, "
+        context += f"Dietary Fiber: {dietaryFiber}, Blood Pressure Systolic: {bloodPressureSystolic}, "
+        context += f"Blood Pressure Diastolic: {bloodPressureDiastolic}, "
 
         # Add heart rate data to the context
-        # for hr_date, hr_value in heart_rate_data:
-        hr_date, hr_value = heart_rate_data[0]
-        context += f"Avg Heart Rate: {hr_value} bpm, "
+        if heart_rate_data:
+            hr_date, hr_value = heart_rate_data[0]
+            context += f"Avg Heart Rate: {hr_value} bpm, "
 
         # Add sleep data to the context
-        # for sleep_from_date, sleep_to_date, sleep_value in sleep_data:
-        #     context += f"Sleep - {sleep_value}\n"
+        if sleep_data:
+            sleep_from_date, sleep_to_date, sleep_value = sleep_data[0]
+            context += f"Sleep: {sleep_value}, "
 
         # Add steps data to the context
-        # for steps_date, steps_value in steps_data:
-        steps_date, steps_value = steps_data[0]
-        context += f"Steps {steps_value}\n"
-        context += 'The response format should be diet_plan:$dietplan exercise_plan: $exercise_plan only and it should be a json.\n'
+        if steps_data:
+            steps_date, steps_value = steps_data[0]
+            context += f"Steps: {steps_value}\n"
+
+        context += 'The response format should be diet_plan: $dietplan exercise_plan: $exercise_plan only and it should be a json.\n'
         context += 'For diet plan please return Breakfast,Mid_Morning_Snack,Lunch,Evening_Snack,Dinner,Late_Night_Snack,special_instructions,supplements.\n'
         context += 'For exercise plan please return daywise plan Monday,tuesday,wednesday,thursday,friday,saturday,special_instructions and Physical_activity_goal'
         # Generate diet plan using chat-GPT4 model
