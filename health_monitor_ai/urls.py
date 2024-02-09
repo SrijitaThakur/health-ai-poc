@@ -15,11 +15,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import path
 from .views import save_user_data, recommendation
+
+
+def hello_world(request):
+    return HttpResponse("Site is up and running..")
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path('save/', save_user_data, name='save_user_data'),
     path('recommendation/', recommendation, name='recommendation'),
+    # Add this line for the test URL
+    path('ping/', hello_world, name='ping'),
 ]
