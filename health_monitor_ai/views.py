@@ -119,6 +119,7 @@ def recommendation(request):
         dietaryFiber = user.dietaryFiber
         bloodPressureSystolic = user.bloodPressureSystolic
         bloodPressureDiastolic = user.bloodPressureDiastolic
+        steps = user.steps
 
         # Extract heart rate data for the user
         heart_rate_data = [(hr.startDate, hr.value) for hr in user.heartRates]
@@ -126,9 +127,6 @@ def recommendation(request):
         # Extract sleep data for the user
         sleep_data = [(sleep.startDate, sleep.endDate, sleep.value)
                       for sleep in user.sleep]
-
-        # Extract steps data for the user
-        steps_data = [(steps.startDate, steps.value) for steps in user.steps]
 
         # Include prompt for generating diet plan
         context = "Generate a custom diet and exercise plan based on the provided information\n"
@@ -150,12 +148,8 @@ def recommendation(request):
             sleep_from_date, sleep_to_date, sleep_value = sleep_data[0]
             context += f"Sleep: {sleep_value}, "
 
-        # Add steps data to the context
-        if steps_data:
-            steps_date, steps_value = steps_data[0]
-            context += f"Steps: {steps_value}\n"
-
-        context += 'The response format should be diet_plan: $dietplan exercise_plan: $exercise_plan only and it should be a json.\n'
+        context += f"Steps: {steps}, "
+        context += 'The response should be in json and the format should be like diet_plan: $dietplan, exercise_plan: $exercise_plan only.\n'
         context += 'For diet plan please return Breakfast,Mid_Morning_Snack,Lunch,Evening_Snack,Dinner,Late_Night_Snack,special_instructions,supplements.\n'
         context += 'For exercise plan please return daywise plan Monday,tuesday,wednesday,thursday,friday,saturday,special_instructions and Physical_activity_goal'
         # Generate diet plan using chat-GPT4 model

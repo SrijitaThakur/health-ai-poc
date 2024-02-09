@@ -16,13 +16,6 @@ class Sleep(models.Model):
     value = models.CharField(max_length=20)
 
 
-class Steps(models.Model):
-    _id = models.ObjectIdField(primary_key=True)
-    startDate = models.DateTimeField()
-    endDate = models.DateTimeField()
-    steps = models.IntegerField()
-
-
 class User(models.Model):
     class Meta:
         db_table = "Users"  # Specify the desired collection name
@@ -42,6 +35,6 @@ class User(models.Model):
     bloodPressureDiastolic = models.FloatField()
     heartRates = models.ArrayField(model_container=HeartRates)
     sleep = models.ArrayField(model_container=Sleep)
-    steps = models.ArrayField(model_container=Steps)
+    steps = models.IntegerField()
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
