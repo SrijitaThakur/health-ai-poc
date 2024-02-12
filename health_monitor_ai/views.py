@@ -7,7 +7,8 @@ from .models import User
 from .serializers import UserSerializer
 from openai import OpenAI
 from dotenv import load_dotenv
-
+# Load environment variables from .env file
+load_dotenv()
 api_key = os.environ.get('OPENAI_API_KEY')
 
 # Check if the API key is available
