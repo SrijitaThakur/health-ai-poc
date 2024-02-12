@@ -1,3 +1,5 @@
+django
 djongo
 OpenAI
 djangorestframework
+python-dotenv

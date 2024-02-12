@@ -6,6 +6,7 @@ from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
 from openai import OpenAI
+from dotenv import load_dotenv
 
 api_key = os.environ.get('OPENAI_API_KEY')
 
