@@ -7,6 +7,7 @@ from .models import User
 from .serializers import UserSerializer
 from openai import OpenAI
 from dotenv import load_dotenv
+
 # Load environment variables from .env file
 load_dotenv()
 api_key = os.environ.get('OPENAI_API_KEY')
@@ -17,73 +18,14 @@ if not api_key:
 
 client = OpenAI(api_key=api_key)
 
-# Set your OpenAI API key
-
-
-def parse_input(input_str):
-    diet_plan_start_index = input_str.find('diet_plan:')
-    exercise_plan_start_index = input_str.find('exercise_plan:')
-
-    # Extract diet plan string
-    diet_plan_str = input_str[diet_plan_start_index +
-                              len('diet_plan:'):exercise_plan_start_index].strip()
-    diet_plan_dict = {}
-    current_key = None
-    for line in diet_plan_str.split('\n'):
-        line = line.strip()
-        if line:
-            if line.endswith(":"):
-                current_key = line[:-1]
-                diet_plan_dict[current_key] = ""
-            else:
-                if current_key:
-                    diet_plan_dict[current_key] += line
-
-    # Extract exercise plan string
-    exercise_plan_str = input_str[exercise_plan_start_index +
-                                  len('exercise_plan:'):].strip()
-    exercise_plan_list = [item.strip()
-                          for item in exercise_plan_str.split('\n') if item.strip()]
-
-    # Create JSON object
-    result = {
-        "diet_plan": diet_plan_dict,
-        "exercise_plan": exercise_plan_list
-    }
-
-    return json.dumps(result, indent=4)
-
 
 @api_view(['POST'])
-# def save_user_data(request):
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body)
-#             user = User(
-#                 email=data['email'],
-#                 age=data['age'],
-#                 sex=data['sex'],
-#                 height=data['height'],
-#                 weight=data['weight'],
-#                 targetWeight=data['targetWeight'],
-#                 purpose=data['purpose'],
-#                 heartRates=data.get('heartRates', []),
-#                 sleep=data.get('sleep', []),
-#                 steps=data.get('steps', [])
-#             )
-#             user.save()
-#             return Response({"message": "User saved successfully"}, status=201)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=400)
-#     else:
-#         return Response({"error": "Method not allowed"}, status=405)
 def save_user_data(request):
     if request.method == 'POST':
         try:
             print("request.data ", request.data)
             serializer = UserSerializer(data=request.data)
             if serializer.is_valid():
-                print("hello....")
                 serializer.save()
                 return Response({'message': 'User data saved successfully'}, status=status.HTTP_201_CREATED)
             else:
@@ -123,13 +65,6 @@ def recommendation(request):
         bloodPressureDiastolic = user.bloodPressureDiastolic
         steps = user.steps
 
-        # Extract heart rate data for the user
-        heart_rate_data = [(hr.startDate, hr.value) for hr in user.heartRates]
-
-        # Extract sleep data for the user
-        sleep_data = [(sleep.startDate, sleep.endDate, sleep.value)
-                      for sleep in user.sleep]
-
         # Include prompt for generating diet plan
         context = "Generate a custom diet and exercise plan based on the provided information\n"
 
@@ -140,29 +75,44 @@ def recommendation(request):
         context += f"Dietary Fiber: {dietaryFiber}, Blood Pressure Systolic: {bloodPressureSystolic}, "
         context += f"Blood Pressure Diastolic: {bloodPressureDiastolic}, "
 
-        # Add heart rate data to the context
-        if heart_rate_data:
-            hr_date, hr_value = heart_rate_data[0]
-            context += f"Avg Heart Rate: {hr_value} bpm, "
+        if user.heartRates is not None:
+            # Initialize variables to calculate average heart rate
+            total_hr_value = 0
+            total_hr_entries = len(user.heartRates)
+            # Iterate over all heart rate entries
+            for hr in user.heartRates:
+                total_hr_value += hr.get('value', 0)
+            # Calculate average heart rate
+            avg_hr_value = total_hr_value / total_hr_entries
+            # Update the context with average heart rate
+            context += f"Avg Heart Rate: {avg_hr_value:.2f} bpm, "
 
         # Add sleep data to the context
-        if sleep_data:
-            sleep_from_date, sleep_to_date, sleep_value = sleep_data[0]
+        if user.sleep is not None:
+            # Get the first sleep entry
+            first_sleep = user.sleep[0]
+            # Extract values from the first sleep entry
+            sleep_from_date = first_sleep.get('startDate')
+            sleep_to_date = first_sleep.get('endDate')
+            sleep_value = first_sleep.get('value')
+            # Update the context
             context += f"Sleep: {sleep_value}, "
 
         context += f"Steps: {steps}, "
         context += 'The response should be in json and the format should be like diet_plan: $dietplan, exercise_plan: $exercise_plan only.\n'
         context += 'For diet plan please return Breakfast,Mid_Morning_Snack,Lunch,Evening_Snack,Dinner,Late_Night_Snack,special_instructions,supplements.\n'
         context += 'For exercise plan please return daywise plan Monday,tuesday,wednesday,thursday,friday,saturday,special_instructions and Physical_activity_goal'
+        print("context ", context)
         # Generate diet plan using chat-GPT4 model
         response = client.chat.completions.create(
             model="gpt-4", messages=[{
                 "role": 'user',
                 "content": context
             }])
+        json_content = response.choices[0].message.content
 
-        # Return generated diet plan as JSON response
-        return Response(response.choices[0].message.content)
+        # Return JSON response
+        return Response(json_content, content_type='application/json')
 
     else:
         return Response({"error": "Method not allowed"}, status=405)
