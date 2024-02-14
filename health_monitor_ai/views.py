@@ -7,6 +7,7 @@ from .models import User
 from .serializers import UserSerializer
 from openai import OpenAI
 from dotenv import load_dotenv
+from django.http import JsonResponse
 
 # Load environment variables from .env file
 load_dotenv()
@@ -99,7 +100,7 @@ def recommendation(request):
             context += f"Sleep: {sleep_value}, "
 
         context += f"Steps: {steps}, "
-        context += 'The response should be in json and the format should be like diet_plan: $dietplan, exercise_plan: $exercise_plan only.\n'
+        context += 'The response should be in json and the format should be like diet_plan: $dietplan, exercise_plan: $exercise_plan only and it should not have any special characters like newline or tab.\n'
         context += 'For diet plan please return Breakfast,Mid_Morning_Snack,Lunch,Evening_Snack,Dinner,Late_Night_Snack,special_instructions,supplements.\n'
         context += 'For exercise plan please return daywise plan Monday,tuesday,wednesday,thursday,friday,saturday,special_instructions and Physical_activity_goal'
         print("context ", context)
@@ -109,10 +110,10 @@ def recommendation(request):
                 "role": 'user',
                 "content": context
             }])
-        json_content = response.choices[0].message.content
+        json_content = json.loads(response.choices[0].message.content)
 
         # Return JSON response
-        return Response(json_content, content_type='application/json')
+        return JsonResponse(json_content)
 
     else:
-        return Response({"error": "Method not allowed"}, status=405)
+        return JsonResponse({"error": "Method not allowed"}, status=405)
