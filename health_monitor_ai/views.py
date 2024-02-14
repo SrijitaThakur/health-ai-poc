@@ -1,7 +1,6 @@
 import os
 import json
 from rest_framework.decorators import api_view
-from rest_framework.response import Response
 from rest_framework import status
 from .models import User
 from .serializers import UserSerializer
@@ -28,16 +27,16 @@ def save_user_data(request):
             serializer = UserSerializer(data=request.data)
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': 'User data saved successfully'}, status=status.HTTP_201_CREATED)
+                return JsonResponse({'message': 'User data saved successfully'}, status=status.HTTP_201_CREATED)
             else:
                 print("Validation errors:", serializer.errors)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             print("Exception type:", type(e))
             print("Exception:", e)
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
     else:
-        return Response({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        return JsonResponse({'error': 'Method not allowed'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['POST'])
@@ -49,7 +48,7 @@ def recommendation(request):
             email = data.get("email")
             user = User.objects.filter(email=email).latest('_id')
         except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=404)
+            return JsonResponse({"error": "User not found"}, status=404)
 
         # Extract relevant information from the latest user record
         age = user.age
